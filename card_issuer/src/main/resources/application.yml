@@ -1,0 +1,26 @@
+server:
+  port: 8082
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/certs
+      client:
+        registration:
+          card-server:
+            provider: keycloak
+            client-id: card-server
+            client-secret: h6oXs3SsyBzynlXH5etH95aWtdIPu9xW
+            authorization-grant-type: client_credentials
+            scope:
+        provider:
+          keycloak:
+            token-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/token
+
+feign:
+  client:
+    config:
+      bank-client:
+        url: http://localhost:8083  # bank-server
