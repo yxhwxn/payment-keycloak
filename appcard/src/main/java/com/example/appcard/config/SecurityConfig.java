@@ -1,5 +1,7 @@
 package com.example.appcard.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,11 +34,18 @@ public class SecurityConfig {
 
     @Bean
     public RequestInterceptor oauth2FeignInterceptor(OAuth2AuthorizedClientManager manager) {
+        Logger log = LoggerFactory.getLogger("appcard-Feign");
         return request -> {
+            log.info("[AppCard] Feign 호출 전 – URL: {}", request.url());
+
             var authReq = OAuth2AuthorizeRequest.withClientRegistrationId("appcard-server")
                     .principal("appcard-server")
                     .build();
             var client = manager.authorize(authReq);
+
+            log.info("[AppCard] 받은 Access Token (truncated): {}…",
+                    client.getAccessToken().getTokenValue().substring(0, 8));
+
             request.header("Authorization", "Bearer " + client.getAccessToken().getTokenValue());
         };
     }

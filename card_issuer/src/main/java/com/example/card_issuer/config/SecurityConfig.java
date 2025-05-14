@@ -1,6 +1,8 @@
 package com.example.card_issuer.config;
 
 import feign.RequestInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,14 +32,19 @@ public class SecurityConfig {
 
     @Bean
     public RequestInterceptor oauth2FeignInterceptor(OAuth2AuthorizedClientManager manager) {
+        Logger log = LoggerFactory.getLogger("card-Feign");
         return request -> {
-            var authReq = OAuth2AuthorizeRequest
-                    .withClientRegistrationId("card-server")
+            log.info("[Card] Feign 호출 전 – URL: {}", request.url());
+
+            var authReq = OAuth2AuthorizeRequest.withClientRegistrationId("card-server")
                     .principal("card-server")
                     .build();
             var client = manager.authorize(authReq);
-            request.header("Authorization",
-                    "Bearer " + client.getAccessToken().getTokenValue());
+
+            log.info("[Card] 받은 Access Token (truncated): {}…",
+                    client.getAccessToken().getTokenValue().substring(0, 8));
+
+            request.header("Authorization", "Bearer " + client.getAccessToken().getTokenValue());
         };
     }
 

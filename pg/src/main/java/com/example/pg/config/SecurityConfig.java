@@ -1,6 +1,8 @@
 package com.example.pg.config;
 
 import feign.RequestInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,11 +40,19 @@ public class SecurityConfig {
     // 2) Feign 인터셉터: AppCard 호출 시 토큰 헤더 자동 추가
     @Bean
     public RequestInterceptor oauth2FeignInterceptor(OAuth2AuthorizedClientManager manager) {
+        Logger log = LoggerFactory.getLogger("pg-server-Feign");
         return request -> {
-            var authReq = OAuth2AuthorizeRequest.withClientRegistrationId("pg-server")
+            log.info("[PG] Feign 호출 전 – URL: {}", request.url());
+
+            var authReq = OAuth2AuthorizeRequest
+                    .withClientRegistrationId("pg-server")
                     .principal("pg-server")
                     .build();
             var client = manager.authorize(authReq);
+
+            log.info("[PG] 받은 Access Token (truncated): {}…",
+                    client.getAccessToken().getTokenValue().substring(0, 8));
+
             request.header("Authorization", "Bearer " + client.getAccessToken().getTokenValue());
         };
     }
