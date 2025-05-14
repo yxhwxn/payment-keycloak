@@ -1,0 +1,12 @@
+server:
+  port: 8083
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak JWKS endpoint
+          jwk-set-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/certs
+
+# bank-server? downstream ? ???? client ??? ???? ??
