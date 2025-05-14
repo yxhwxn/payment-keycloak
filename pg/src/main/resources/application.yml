@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak JWKS endpoint
+          jwk-set-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/certs
+
+      client:
+        registration:
+          pg-server:
+            provider: keycloak
+            client-id: pg-server
+            client-secret: MgHzBcUSM6dRiQyWsRO6b50uQveVPsIF
+            authorization-grant-type: client_credentials
+            scope:          # ?? ???? service-account-roles? ?? ??
+        provider:
+          keycloak:
+            token-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/token
+
+feign:
+  client:
+    config:
+      appcard-client:
+        url: http://localhost:8081  # appcard-server
