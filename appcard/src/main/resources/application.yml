@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/certs
+      client:
+        registration:
+          appcard-server:
+            provider: keycloak
+            client-id: appcard-server
+            client-secret: nnwDW6qLNXpEhmFnFCzHq6es7Ke2dC1i
+            authorization-grant-type: client_credentials
+            scope:        # ?? ???? service-account-roles? ?? ??
+        provider:
+          keycloak:
+            token-uri: http://192.168.0.151:9090/realms/wonq-realm/protocol/openid-connect/token
+
+feign:
+  client:
+    config:
+      card-client:
+        url: http://localhost:8082  # card-server

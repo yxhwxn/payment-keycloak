@@ -1,0 +1,67 @@
+package com.example.appcard.config;
+
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.client.*;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.*;
+import feign.RequestInterceptor;
+
+@Configuration
+@EnableFeignClients
+public class SecurityConfig {
+
+    @Bean
+    @Primary
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clients,
+            OAuth2AuthorizedClientRepository clientRepo
+    ) {
+        var provider = OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build();
+        var mgr = new DefaultOAuth2AuthorizedClientManager(clients, clientRepo);
+        mgr.setAuthorizedClientProvider(provider);
+        return mgr;
+    }
+
+    @Bean
+    public RequestInterceptor oauth2FeignInterceptor(OAuth2AuthorizedClientManager manager) {
+        return request -> {
+            var authReq = OAuth2AuthorizeRequest.withClientRegistrationId("appcard-server")
+                    .principal("appcard-server")
+                    .build();
+            var client = manager.authorize(authReq);
+            request.header("Authorization", "Bearer " + client.getAccessToken().getTokenValue());
+        };
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/hello").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults())
+                );
+        return http.build();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
