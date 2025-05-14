@@ -261,13 +261,7 @@ public interface AppCardClient {
 ### ✅ 테스트 순서
 
 1. **Keycloak**: 모든 Client & Scope & Role 매핑 완료
-2. **은행 서버**부터 순차적 기동:
-
-   ```bash
-   cd bank-server && ./mvnw spring-boot:run
-   cd cardissuer-server && ./mvnw spring-boot:run
-   …
-   ```
+2. **은행 서버**부터 모든 서버(pg, appcard, card, bank) 순차적 실행
 3. **PG 서버**에 `/hello` 호출
 
    ```bash
